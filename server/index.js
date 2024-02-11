@@ -1,33 +1,29 @@
-require('dotenv').config()
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser')
-const mongoose = require('mongoose');
-const router = require('./router/index')
-const errorMiddleware = require('./middlewares/error-middleware');
+import { config } from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { router } from './router/index.js';
+import errorMiddleware from './middlewares/error-middleware.js';
 
-const PORT = process.env.PORT || 5000;
-const app = express()
+config();
+const PORT = process.env.PORT || 8000;
+const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL
-}));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use('/api', router);
+
+// Define error-handling middleware in the same way as other middleware, except 4 arguments instead of 3
+// after other app.use() and routes calls
 app.use(errorMiddleware);
 
 const start = async () => {
-    try {
-        await mongoose.connect(process.env.DB_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        })
-        app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
-    } catch (e) {
-        console.log(e);
-    }
-}
+  try {
+    app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`));
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-start()
+start();
