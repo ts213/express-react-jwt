@@ -3,52 +3,34 @@ import { Token } from '../models/models.js';
 
 export default new class TokenService {
   generateTokens(payload) {
-    console.log(payload)
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15s' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30s' });
-    return {
-      accessToken,
-      refreshToken
-    };
+    // const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15s' });
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '66s' });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '60s' });
+    return { accessToken, refreshToken };
   }
 
   validateAccessToken(token) {
-    try {
-      const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-      return userData;
-    } catch (e) {
-      return null;
-    }
+    return jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, data) => data);
   }
 
   validateRefreshToken(token) {
-    try {
-      const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      return userData;
-    } catch (e) {
-      return null;
-    }
+    return jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, data) => data);
   }
 
   async saveToken(userId, refreshToken) {
     const tokenData = await Token.findOne({ where: { userId } });
     if (tokenData) {
-      console.log('token dada exists');
-      tokenData.refreshToken = refreshToken;
-      return tokenData.save();
+      tokenData.update({ refreshToken });
+    } else {
+      Token.create({ UserId: userId, refreshToken });
     }
-    console.log('no token data');
-    const token = await Token.create({ UserId: userId, refreshToken });
-    return token;
   }
 
   async removeToken(refreshToken) {
-    const tokenData = await Token.deleteOne({ refreshToken });
-    return tokenData;
+    return Token.destroy({ where: { refreshToken } });
   }
 
   async findToken(refreshToken) {
-    const tokenData = await Token.findOne({ refreshToken });
-    return tokenData;
+    return Token.findOne({ where: { refreshToken } });
   }
 }

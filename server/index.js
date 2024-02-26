@@ -1,29 +1,20 @@
-import { config } from 'dotenv';
+import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { router } from './router/index.js';
+import { router as userRouter } from './routers/userRouter.js';
 import errorMiddleware from './middlewares/error-middleware.js';
 
-config();
-const PORT = process.env.PORT || 8000;
-const app = express();
+express()
+  .use(express.json())
+  .use(cookieParser())
+  .use(cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL,
+  }))
+  .use('/api', userRouter)
+  .use(errorMiddleware)
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
-app.use('/api', router);
-
-// Define error-handling middleware in the same way as other middleware, except 4 arguments instead of 3
-// after other app.use() and routes calls
-app.use(errorMiddleware);
-
-const start = async () => {
-  try {
-    app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`));
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-start();
+  .listen(process.env.PORT || 8000, function () {
+    console.log(`Server started on PORT: ${this.address().port}`);
+  });
