@@ -1,24 +1,17 @@
-import React, {createContext} from 'react';
-import ReactDOM from 'react-dom';
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Context } from './Context';
+
 import App from './App';
-import Store from "./store/store";
+import Store from './store/store';
 
-interface State {
-    store: Store,
-}
+const store = new Store();
+export type StoreT = Store;
 
-export const store = new Store();
-
-export const Context = createContext<State>({
-    store,
-})
-
-ReactDOM.render(
-    <Context.Provider value={{
-        store
-    }}>
-        <App />
-    </Context.Provider>,
-  document.getElementById('root')
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Context.Provider value={store}>
+      <App />
+    </Context.Provider>
+  </StrictMode>
 );
-
