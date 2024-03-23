@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { AuthResponse } from '../types/AuthResponse';
+import { userStore } from '../store/userStore';
 
 export const API_URL = 'http://localhost:8000/api';
 
@@ -14,19 +15,19 @@ $api.interceptors.request.use((config) => {
 });
 
 $api.interceptors.response.use(
-  (config) => config,
+  (config) => {
+    return config;
+  },
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && error.config && !error.config._isRetry) {
-      originalRequest._isRetry = true;
+    if (error.response.status === 401) {
       try {
         const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, { withCredentials: true });
         localStorage.setItem('token', response.data.accessToken);
-        return $api.request(originalRequest);
+        return $api.request(error.config);
       } catch (e) {
-        console.log('НЕ АВТОРИЗОВАН');
+        userStore.logout();
+        throw e;
       }
     }
-    throw error;
   }
 );

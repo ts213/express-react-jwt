@@ -1,3 +1,0 @@
-# @no-log
-GET http://localhost:5000/test
-Accept: application/json

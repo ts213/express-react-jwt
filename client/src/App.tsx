@@ -1,51 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
-import LoginForm from './components/LoginForm';
+import React, { useContext, useEffect } from 'react';
+import { LoginForm } from './components/LoginForm';
 import { observer } from 'mobx-react-lite';
-import { UserT } from './types/UserT';
-import UserService from './services/UserService';
-import { Context } from './Context';
+import { StoreContext } from './store/userStore';
+import { UserTab } from './components/UserTab';
 
 export default observer(function App() {
-  const store = useContext(Context);
-  const [users, setUsers] = useState<UserT[]>([]);
+  const store = useContext(StoreContext);
 
   useEffect(() => {
     localStorage.getItem('token') && store.checkAuth();
   }, []);
-
-  async function getUsers() {
-    try {
-      const response = await UserService.fetchUsers();
-      setUsers(response.data);
-    } catch (e) {
-      console.log(e);
-    }
-  }
 
   if (store.isLoading) {
     return <div>Загрузка...</div>
   }
 
   if (!store.isAuth) {
-    return (
-      <div>
-        <LoginForm />
-        <button onClick={getUsers}>Получить пользователей</button>
-      </div>
-    );
+    return <LoginForm />
   }
 
-  return (
-    <div>
-      <h1>{store.isAuth ? `Пользователь авторизован ${store.user.email}` : 'АВТОРИЗУЙТЕСЬ'}</h1>
-      <h1>{store.user.isActivated ? 'Аккаунт подтвержден по почте' : 'ПОДТВЕРДИТЕ АККАУНТ!!!!'}</h1>
-      <button onClick={store.logout}>Выйти</button>
-      <div>
-        <button onClick={getUsers}>Получить пользователей</button>
-      </div>
-      {users.map(user =>
-        <div key={user.email}>{user.email}</div>
-      )}
-    </div>
-  );
+  return <UserTab />
 });

@@ -4,9 +4,10 @@ import AuthService from '../services/AuthService';
 import axios from 'axios';
 import { AuthResponse } from '../types/AuthResponse';
 import { API_URL } from '../http';
+import { createContext } from 'react';
 
-export default class Store {
-  user = {} as UserT;
+class Store {
+  user: UserT = {} as UserT;
   isAuth = false;
   isLoading = false;
 
@@ -29,39 +30,33 @@ export default class Store {
   login = async (email: string, password: string) => {
     try {
       const response = await AuthService.login(email, password);
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e) {
-      // @ts-ignore
-      console.log(e.response?.data?.message);
+      console.log(e);
     }
   };
 
   registration = async (email: string, password: string) => {
     try {
       const response = await AuthService.registration(email, password);
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e) {
-      // @ts-ignore
-      console.log(e.response?.data?.message);
+      console.log(e);
     }
   };
 
   logout = async () => {
     try {
-      const response = await AuthService.logout();
+      await AuthService.logout();
       localStorage.removeItem('token');
       this.setAuth(false);
       this.setUser({} as UserT);
     } catch (e) {
-      console.log(e)
-      // @ts-ignore
-      console.log(e.response?.data?.message);
+      console.log(e);
     }
   };
 
@@ -72,15 +67,15 @@ export default class Store {
         `${API_URL}/refresh`,
         { withCredentials: true },
       );
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e) {
-      // @ts-ignore
-      console.log(e.response?.data?.message);
     } finally {
       this.setLoading(false);
     }
   };
 }
+
+export const userStore = new Store();
+export const StoreContext = createContext(userStore);

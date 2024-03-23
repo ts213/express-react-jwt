@@ -26,9 +26,9 @@ export default new class UserController {
 
   logout = async(req, res) => {
     const { refreshToken } = req.cookies;
-    const token = await UserService.logout(refreshToken);
+    await UserService.logout(refreshToken);
     res.clearCookie('refreshToken');
-    return res.json(token);
+    return res.sendStatus(200);
   };
 
   activate = async(req, res, next) => {

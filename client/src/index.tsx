@@ -1,17 +1,12 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Context } from './Context';
-
 import App from './App';
-import Store from './store/store';
-
-const store = new Store();
-export type StoreT = Store;
+import { userStore, StoreContext } from './store/userStore';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Context.Provider value={store}>
+    <StoreContext.Provider value={userStore}>
       <App />
-    </Context.Provider>
+    </StoreContext.Provider>
   </StrictMode>
 );
